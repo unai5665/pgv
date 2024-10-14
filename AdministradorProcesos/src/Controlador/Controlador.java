@@ -42,7 +42,14 @@ public class Controlador {
         }
     }
 
-    public boolean killProcess(String pid) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+   public boolean killProcess(String pid) {
+    try {
+        Process process = Runtime.getRuntime().exec("kill -9 " + pid);
+        process.waitFor(); 
+        return process.exitValue() == 0; 
+    } catch (Exception e) {
+        e.printStackTrace(); 
+        return false; 
     }
+   }
 }
