@@ -2,52 +2,55 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package prestamos;
+package biblioteca;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class Estudiante implements Runnable {
-    private static final Random random = new Random();
-    private final Libro[] libros;
     private final int id;
-    private static final Object lock = new Object();
+    private final Libro[] libros;
+    private final Random random = new Random();
 
-    public Estudiante(Libro[] libros, int id) {
-        this.libros = libros;
+    public Estudiante(int id, Libro[] libros) {
         this.id = id;
+        this.libros = libros;
     }
 
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                
-                Libro libro1 = seleccionarLibro();
-                Libro libro2 = seleccionarLibro();
-                System.out.println("Estudiante " + id + " ha seleccionado " + libro1 + " y " + libro2);
+    private void tomarLibros() throws InterruptedException {
+        int primerLibro = random.nextInt(libros.length);
+        int segundoLibro;
+        do {
+            segundoLibro = random.nextInt(libros.length);
+        } while (primerLibro == segundoLibro);
 
+        synchronized (libros[primerLibro]) {
+            synchronized (libros[segundoLibro]) {
+                System.out.printf("Estudiante %d toma %s y %s.\n", id, libros[primerLibro], libros[segundoLibro]);
                 
-                int tiempoUso = 1 + random.nextInt(3); 
-                TimeUnit.SECONDS.sleep(tiempoUso);
-                System.out.println("Estudiante " + id + " ha devuelto " + libro1 + " y " + libro2);
-
+                int tiempoUso = (random.nextInt(3) + 1) * 100; // De 1 a 3 horas (en minutos) = 100 a 300 ms
+                Thread.sleep(tiempoUso);
                 
-                int tiempoDescanso = 1 + random.nextInt(2); 
-                TimeUnit.SECONDS.sleep(tiempoDescanso);
-                System.out.println("Estudiante " + id + " está descansando.");
-
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+                System.out.printf("Estudiante %d devuelve %s y %s después de %d minutos.\n",
+                        id, libros[primerLibro], libros[segundoLibro], tiempoUso / 100);
             }
         }
     }
 
-    private Libro seleccionarLibro() {
-        synchronized (lock) {
-            int index = random.nextInt(libros.length);
-            return libros[index];
+    private void descansar() throws InterruptedException {
+        int tiempoDescanso = (random.nextInt(2) + 1) * 100; // De 1 a 2 horas (en minutos) = 100 a 200 ms
+        System.out.printf("Estudiante %d descansa %d minutos.\n", id, tiempoDescanso / 100);
+        Thread.sleep(tiempoDescanso);
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                tomarLibros();
+                descansar();
+            }
+        } catch (InterruptedException e) {
+            System.out.printf("Estudiante %d termina su actividad.\n", id);
         }
     }
 }
