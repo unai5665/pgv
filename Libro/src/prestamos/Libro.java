@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package prestamos;
+package biblioteca;
 
 public class Libro {
     private final int id;
@@ -17,6 +17,7 @@ public class Libro {
 
     @Override
     public String toString() {
-        return "Libro{" + "id=" + id + '}';
+        return "Libro " + id;
     }
 }
+
